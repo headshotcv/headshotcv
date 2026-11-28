@@ -7,13 +7,15 @@ import { Paywall, PageTitle } from "../Paywall";
 import { EXERCISES, byId } from "@/lib/program/exercises";
 import { Button } from "@/components/ui/Button";
 import { newId } from "@/lib/store/id";
+import { TierBadges, XpCard } from "../Motivation";
+import { ButtonLink } from "@/components/ui/Button";
 
 export function ProgressPage() {
   return <Paywall feature="Ta progression"><Inner /></Paywall>;
 }
 
 function Inner() {
-  const { data, user, repo, refresh } = useAccount();
+  const { data, user, repo, refresh, base } = useAccount();
   const sp = useSearchParams();
   const [now] = useState(() => new Date());
   const s = useProgressStats(data, now);
@@ -65,6 +67,22 @@ function Inner() {
             })}
           </ul>
         </section>
+      </div>
+      <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
+        <section className="rounded-[24px] border border-line bg-ink-2 p-6">
+          <div className="mb-4 flex items-center justify-between"><p className="eyebrow">Bilans</p><ButtonLink href={`${base}/bilan`} size="sm" variant="outline">Refaire le bilan</ButtonLink></div>
+          {data.assessments.length === 0 ? <p className="text-sm text-mute">Aucun bilan pour l’instant.</p> : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[420px] text-left text-sm tabular">
+                <thead className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute"><tr><th className="py-2 font-normal">Date</th><th className="font-normal">Pompes</th><th className="font-normal">Squats/60 s</th><th className="font-normal">Planche</th><th className="font-normal">Chaise</th></tr></thead>
+                <tbody>{data.assessments.map((a) => (
+                  <tr key={a.id} className="border-t border-line"><td className="py-3">{new Date(a.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</td><td>{a.pushups}{a.pushupVariant !== "pushup" && <span className="text-mute"> ({a.pushupVariant === "knee-pushup" ? "genoux" : "inclinées"})</span>}</td><td>{a.squats60}</td><td>{a.plank} s</td><td>{a.wallSit} s</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )}
+        </section>
+        <div className="grid gap-4"><XpCard /><section className="rounded-[24px] border border-line bg-ink-2 p-6"><p className="eyebrow mb-4">Paliers de régularité</p><TierBadges /></section></div>
       </div>
       <section className="rounded-[24px] border border-line bg-ink-2 p-6">
         <p className="eyebrow mb-4">Historique des séances</p>

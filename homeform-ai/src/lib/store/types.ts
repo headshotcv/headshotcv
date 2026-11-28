@@ -24,6 +24,20 @@ export interface WorkoutLog {
 
 export interface PersonalGoal { id: string; label: string; exerciseId: string; target: number; unit: "reps" | "seconds"; createdAt: string; done?: boolean }
 
+export interface Assessment {
+  id: string;
+  createdAt: string;
+  pushupVariant: "pushup" | "knee-pushup" | "incline-pushup";
+  pushups: number;
+  squats60: number;
+  plank: number;
+  wallSit: number;
+  /** true when push-ups/squats were counted by the camera */
+  cameraCounted?: boolean;
+}
+
+export interface ChallengeDone { date: string; id: string }
+
 export interface Subscription {
   status: "none" | "active" | "trialing" | "past_due" | "canceled" | "dev";
   plan?: "monthly" | "annual";
@@ -39,10 +53,12 @@ export interface AccountData {
   goals: PersonalGoal[];
   coachConsent: boolean;
   subscription: Subscription;
+  assessments: Assessment[];
+  challenges: ChallengeDone[];
 }
 
 export interface User { id: string; email: string }
 
-export const EMPTY_DATA: AccountData = { profile: null, program: null, analyses: [], logs: [], goals: [], coachConsent: false, subscription: { status: "none" } };
+export const EMPTY_DATA: AccountData = { profile: null, program: null, analyses: [], logs: [], goals: [], coachConsent: false, subscription: { status: "none" }, assessments: [], challenges: [] };
 
 export const hasAccess = (s: Subscription) => s.status === "active" || s.status === "trialing" || s.status === "dev";

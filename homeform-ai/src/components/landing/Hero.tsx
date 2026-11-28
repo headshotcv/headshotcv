@@ -125,6 +125,7 @@ export function Hero() {
 
         <div className="wrap relative z-10 lg:absolute lg:inset-0 lg:flex lg:items-center">
           <div className="max-w-2xl pb-10 pt-8 lg:pb-0 lg:pt-16">
+            <a href="/nouveautes" className="focus-ring mb-5 inline-flex items-center gap-2 rounded-full border border-volt/40 bg-ink/60 py-1 pl-1 pr-3 text-xs backdrop-blur hover:border-volt"><span className="rounded-full bg-volt px-2 py-0.5 font-mono text-[10px] font-semibold uppercase text-ink">Nouveau</span>Répétitions comptées en direct pendant que tu filmes →</a>
             <p className="eyebrow mb-5 flex items-center gap-3 !text-bone/70"><span className="h-px w-8 bg-volt" />Coach de musculation à la maison · analyse vidéo IA</p>
             <h1 id="hero-title" className="display !leading-[0.88] text-[14vw] sm:text-[88px] lg:text-[clamp(84px,7.4vw,138px)]">
               Ton corps.<br />Ton coach.<br /><span className="text-volt">Ton évolution.</span>

@@ -6,11 +6,11 @@ import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
-  ["#analyse", "Analyse"],
-  ["#programme", "Programme"],
-  ["#suivi", "Suivi"],
-  ["#tarifs", "Tarifs"],
-  ["#faq", "FAQ"],
+  ["/analyse-video", "Analyse"],
+  ["/programmes", "Programmes"],
+  ["/coach-ia", "Coach IA"],
+  ["/#tarifs", "Tarifs"],
+  ["/blog", "Blog"],
 ] as const;
 
 export function Header() {

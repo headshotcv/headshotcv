@@ -44,7 +44,7 @@ export function ResultView({ result, frames, blob, locked = false, unlockSlot }:
         </div>
         <div className="space-y-4">
           <SummaryGrid result={result} />
-          {free.map((o) => <ObservationCard key={o.id} o={o} onSeek={blob ? seek : undefined} />)}
+          {free.map((o, i) => <ObservationCard key={o.id} o={o} first={i === 0} onSeek={blob ? seek : undefined} />)}
           {hidden.length > 0 && (
             <div className="relative overflow-hidden rounded-2xl border border-line">
               <div aria-hidden className="pointer-events-none select-none space-y-3 p-4 blur-[6px]">

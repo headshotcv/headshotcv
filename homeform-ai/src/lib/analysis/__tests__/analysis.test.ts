@@ -103,3 +103,15 @@ test("split stance (lunge) in profile is not reported as a squat", () => {
   const r = analyze({ frames, meta: s.meta });
   assert.equal(r.rejection?.code, "exercise_not_recognized");
 });
+
+import { LiveRepCounter } from "../live.ts";
+test("live counter counts reps frame by frame", () => {
+  for (const ex of ["squat", "pushup"] as const) {
+    const s = syntheticSequence({ exercise: ex, reps: 5 });
+    const c = new LiveRepCounter(ex, 16 / 9);
+    let last = c.push(0, null);
+    for (const f of s.frames) last = c.push(f.t, f.landmarks);
+    last = c.push(s.meta.duration + 1, s.frames[s.frames.length - 1].landmarks);
+    assert.equal(last.reps, 5, ex);
+  }
+});

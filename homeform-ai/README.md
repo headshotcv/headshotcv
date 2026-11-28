@@ -35,6 +35,12 @@ Sans variables Supabase, l’app tourne en **mode local** (comptes et données d
 | Progression : séances/semaine, heatmap de régularité, courbe de répétitions, objectifs, historique | ✅ |
 | Coach IA (Claude, streaming, consentement pour partager l’historique) | ✅ code prêt — nécessite `ANTHROPIC_API_KEY` |
 | Démo interne `/demo` (données fictives isolées, bouton Réinitialiser) | ✅ |
+| Comptage des répétitions **en direct** pendant le filmage (squelette sur l’aperçu caméra) | ✅ testé avec un flux caméra simulé |
+| Bilan de départ (4 tests, comptage caméra possible) → programme calculé sur les résultats | ✅ |
+| Séries hebdomadaires, paliers, XP/niveau, défi du jour (calculés sur l’activité réelle) | ✅ |
+| Corrections classées (« à corriger en premier ») | ✅ |
+| Pages : analyse vidéo, forces et limites, comment filmer, programmes + leçons, coach IA, nouveautés, blog | ✅ |
+| Vidéos réelles (Mixkit, licence libre) avec squelette MediaPipe pré-calculé | ✅ `public/media` |
 | Pages légales (mentions, CGU/CGV, confidentialité, cookies, avertissement santé) | ✅ modèles, champs `[À COMPLÉTER]` |
 
 ## Pipeline d’analyse (`src/lib/analysis`, `src/lib/pose`)
@@ -56,8 +62,8 @@ Vidéo (jamais envoyée au serveur)
 
 ## Mise en production
 
-1. **Supabase** : créer un projet (région UE), exécuter `supabase/migrations/0001_init.sql`, renseigner les 3 variables. Configurer l’URL de redirection `https://<domaine>/auth/callback`.
-2. **Stripe** : créer 2 prix récurrents (9,90 €/mois, 79,90 €/an) → `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_ANNUAL`, webhook `https://<domaine>/api/stripe/webhook` (événements `checkout.session.completed`, `customer.subscription.*`), activer le portail client. Les prix affichés sont dans `src/config/pricing.ts`.
+1. **Supabase** : créer un projet (région UE), exécuter `supabase/migrations/0001_init.sql` puis `0002_motivation.sql`, renseigner les 3 variables. Configurer l’URL de redirection `https://<domaine>/auth/callback`.
+2. **Stripe** : créer 2 prix récurrents (9,90 €/mois, 59,90 €/an) → `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_ANNUAL`, webhook `https://<domaine>/api/stripe/webhook` (événements `checkout.session.completed`, `customer.subscription.*`), activer le portail client. Les prix affichés sont dans `src/config/pricing.ts`.
 3. **Coach** : `ANTHROPIC_API_KEY` (serveur uniquement). Modèle par défaut `claude-opus-5-5` (effort bas), modifiable via `COACH_MODEL`. Remplacer la limitation de débit en mémoire par un store partagé.
 4. **Vercel** : importer le dossier `homeform-ai`, ajouter les variables, déployer. `NEXT_PUBLIC_ALLOW_DEV_UNLOCK` doit rester vide.
 5. Compléter les mentions `[À COMPLÉTER]` et faire relire CGV/confidentialité par un juriste.

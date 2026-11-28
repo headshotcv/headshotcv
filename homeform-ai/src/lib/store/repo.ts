@@ -1,5 +1,5 @@
 "use client";
-import { EMPTY_DATA, type AccountData, type PersonalGoal, type StoredAnalysis, type Subscription, type User, type WorkoutLog } from "./types";
+import { EMPTY_DATA, type AccountData, type Assessment, type ChallengeDone, type PersonalGoal, type StoredAnalysis, type Subscription, type User, type WorkoutLog } from "./types";
 import type { Profile, Program } from "@/lib/program/generate";
 import { isSupabaseConfigured, LOCAL_SESSION_COOKIE } from "@/lib/supabase/config";
 import { supabaseBrowser } from "@/lib/supabase/browser";
@@ -18,6 +18,8 @@ export interface Repo {
   saveGoals(user: User, goals: PersonalGoal[]): Promise<void>;
   setCoachConsent(user: User, v: boolean): Promise<void>;
   setDevSubscription(user: User, s: Subscription): Promise<void>;
+  addAssessment(user: User, a: Assessment): Promise<void>;
+  completeChallenge(user: User, c: ChallengeDone): Promise<void>;
   deleteAccount(user: User): Promise<void>;
 }
 
@@ -74,6 +76,8 @@ const localRepo: Repo = {
   async saveGoals(user, goals) { const d = await this.load(user); lwrite(LK.data(user.id), { ...d, goals }); },
   async setCoachConsent(user, v) { const d = await this.load(user); lwrite(LK.data(user.id), { ...d, coachConsent: v }); },
   async setDevSubscription(user, s) { const d = await this.load(user); lwrite(LK.data(user.id), { ...d, subscription: s }); },
+  async addAssessment(user, a) { const d = await this.load(user); lwrite(LK.data(user.id), { ...d, assessments: [a, ...d.assessments] }); },
+  async completeChallenge(user, c) { const d = await this.load(user); lwrite(LK.data(user.id), { ...d, challenges: [...d.challenges.filter((x) => x.date !== c.date || x.id !== c.id), c].slice(-400) }); },
   async deleteAccount(user) {
     localStorage.removeItem(LK.data(user.id));
     const users = lread<Record<string, { id: string }>>(LK.users, {});
@@ -107,20 +111,22 @@ const supabaseRepo: Repo = {
   async signOut() { await sb().auth.signOut(); },
   async load(user) {
     const [p, a, l, g, s] = await Promise.all([
-      sb().from("profiles").select("profile, program, coach_consent, goals").eq("id", user.id).maybeSingle(),
+      sb().from("profiles").select("profile, program, coach_consent, goals, assessments, challenges").eq("id", user.id).maybeSingle(),
       sb().from("analyses").select("id, exercise, status, result, has_local_video, created_at").order("created_at", { ascending: false }).limit(100),
       sb().from("workout_logs").select("id, log, created_at").order("created_at", { ascending: false }).limit(500),
       Promise.resolve(null),
       sb().from("subscriptions").select("status, plan, current_period_end, cancel_at_period_end").eq("user_id", user.id).maybeSingle(),
     ]);
     void g;
-    const prof = check(p) as { profile: Profile | null; program: Program | null; coach_consent: boolean; goals: PersonalGoal[] | null } | null;
+    const prof = check(p) as { profile: Profile | null; program: Program | null; coach_consent: boolean; goals: PersonalGoal[] | null; assessments: Assessment[] | null; challenges: ChallengeDone[] | null } | null;
     const sub = check(s) as { status: Subscription["status"]; plan: Subscription["plan"]; current_period_end: string | null; cancel_at_period_end: boolean } | null;
     return {
       profile: prof?.profile ?? null,
       program: prof?.program ?? null,
       coachConsent: prof?.coach_consent ?? false,
       goals: prof?.goals ?? [],
+      assessments: prof?.assessments ?? [],
+      challenges: prof?.challenges ?? [],
       analyses: (check(a) as { id: string; exercise: StoredAnalysis["exercise"]; status: StoredAnalysis["status"]; result: StoredAnalysis["result"]; has_local_video: boolean; created_at: string }[]).map((x) => ({ id: x.id, exercise: x.exercise, status: x.status, result: x.result, createdAt: x.created_at, hasLocalVideo: x.has_local_video })),
       logs: (check(l) as { id: string; log: WorkoutLog; created_at: string }[]).map((x) => ({ ...x.log, id: x.id, createdAt: x.created_at })),
       subscription: sub ? { status: sub.status, plan: sub.plan, currentPeriodEnd: sub.current_period_end ?? undefined, cancelAtPeriodEnd: sub.cancel_at_period_end } : { status: "none" },
@@ -133,6 +139,8 @@ const supabaseRepo: Repo = {
   async saveGoals(user, goals) { check(await sb().from("profiles").upsert({ id: user.id, goals })); },
   async setCoachConsent(user, v) { check(await sb().from("profiles").upsert({ id: user.id, coach_consent: v })); },
   async setDevSubscription() { throw new Error("Indisponible en production."); },
+  async addAssessment(user, a) { const d = await this.load(user); check(await sb().from("profiles").upsert({ id: user.id, assessments: [a, ...d.assessments].slice(0, 50) })); },
+  async completeChallenge(user, c) { const d = await this.load(user); check(await sb().from("profiles").upsert({ id: user.id, challenges: [...d.challenges.filter((x) => x.date !== c.date || x.id !== c.id), c].slice(-400) })); },
   async deleteAccount() {
     const r = await fetch("/api/account", { method: "DELETE" });
     if (!r.ok) throw new Error("La suppression du compte a échoué. Contacte le support.");

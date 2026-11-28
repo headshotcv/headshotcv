@@ -74,7 +74,7 @@ export function AnalysisShowcase() {
                     <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={cn("focus-ring flex-1 rounded-full py-2 transition-colors", tab === k ? "bg-bone text-ink" : "text-bone/70")}>{l}</button>
                   ))}
                 </div>
-                {tab === "obs" ? <div className="space-y-3">{r.observations.slice(0, 3).map((o) => <ObservationCard key={o.id} o={o} onSeek={(s) => seek(Math.max(0, s - 0.6))} />)}</div> : <QualityList result={r} />}
+                {tab === "obs" ? <div className="space-y-3">{r.observations.slice(0, 3).map((o, i) => <ObservationCard key={o.id} o={o} first={i === 0} onSeek={(s) => seek(Math.max(0, s - 0.6))} />)}</div> : <QualityList result={r} />}
               </>
             ) : <div className="h-96 animate-pulse rounded-2xl bg-white/[0.04]" />}
             <p className="text-xs leading-relaxed text-mute">Angles estimés en 2D. HOMEFORM ne détecte pas de blessure et ne pose aucun diagnostic. Seuils indicatifs en cours de validation avec des professionnels qualifiés. Vidéos : Mixkit.</p>

@@ -8,6 +8,16 @@ import type { PoseLandmarker as PL } from "@mediapipe/tasks-vision";
 import type { PoseFrame, VideoMeta } from "@/lib/analysis/types";
 
 let landmarkerPromise: Promise<PL> | null = null;
+/** VIDEO mode needs strictly increasing timestamps across ALL calls (live preview + file analysis). */
+let lastTs = 0;
+function nextTs(desired: number) { lastTs = Math.max(lastTs + 1, Math.round(desired)); return lastTs; }
+
+/** One detection on the current frame of a playing <video> (live camera preview). */
+export function detectLive(landmarker: PL, video: HTMLVideoElement) {
+  const res = landmarker.detectForVideo(video, nextTs(performance.now()));
+  const lm = res.landmarks?.[0];
+  return lm ? lm.map((p) => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility ?? 0 })) : null;
+}
 
 export async function getLandmarker(): Promise<PL> {
   if (!landmarkerPromise) {
@@ -106,13 +116,11 @@ export async function extractPoses(
   const frames: PoseFrame[] = [];
   const knownDuration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : null;
   const est = knownDuration ? Math.floor(knownDuration * 15) : 300;
-  let lastTs = -1;
+  const tsBase = lastTs + 1;
 
   const process = (t: number) => {
     if (frames.length && t - frames[frames.length - 1].t < 1 / 16) return; // ≈15 fps max
-    const ts = Math.max(lastTs + 1, Math.round(t * 1000));
-    lastTs = ts;
-    const res = landmarker.detectForVideo(video, ts);
+    const res = landmarker.detectForVideo(video, nextTs(tsBase + t * 1000));
     const lm = res.landmarks?.[0];
     frames.push({
       t,

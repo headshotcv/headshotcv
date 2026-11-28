@@ -42,5 +42,10 @@ export function sampleAccount(now = new Date("2026-11-20T18:00:00Z")): AccountDa
       { id: "g2", label: "Planche de 45 s", exerciseId: "plank", target: 45, unit: "seconds", createdAt: "2026-10-01T00:00:00Z" },
     ],
     subscription: { status: "dev", plan: "annual" },
+    assessments: [
+      { id: "demo_b2", createdAt: new Date(now.getTime() - 3 * dayMs).toISOString(), pushupVariant: "knee-pushup", pushups: 13, squats60: 31, plank: 44, wallSit: 50, cameraCounted: true },
+      { id: "demo_b1", createdAt: "2026-09-28T08:00:00Z", pushupVariant: "knee-pushup", pushups: 6, squats60: 22, plank: 25, wallSit: 30 },
+    ],
+    challenges: Array.from({ length: 9 }, (_, i) => ({ date: new Date(now.getTime() - i * 2 * dayMs).toISOString().slice(0, 10), id: "auto" })),
   };
 }

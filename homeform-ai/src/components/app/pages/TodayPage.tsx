@@ -10,6 +10,7 @@ import { PageSkeleton, PageTitle } from "../Paywall";
 import { fmtTarget } from "@/components/program/ProgramTimeline";
 import { nextSession, thisWeekCount } from "../nextSession";
 import { EXERCISE_LABEL } from "@/components/analysis/ReportView";
+import { ChallengeCard, StreakCard, XpCard } from "../Motivation";
 
 export function TodayPage() {
   const { data, loading, base, user } = useAccount();
@@ -40,6 +41,21 @@ export function TodayPage() {
           <p className="text-lg font-semibold">Crée ton programme</p>
           <p className="mt-1 text-bone/70">Cinq questions pour un plan adapté à ton temps et ton matériel.</p>
           <ButtonLink href={`${base}/programme`} className="mt-4" arrow>Commencer</ButtonLink>
+        </div>
+      )}
+
+      {access && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <StreakCard />
+          <ChallengeCard />
+          <XpCard />
+        </div>
+      )}
+
+      {access && data.assessments.length === 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-volt/40 bg-gradient-to-r from-volt/[0.08] to-transparent p-6">
+          <div><p className="text-lg font-semibold">Fais ton bilan de départ</p><p className="text-bone/70">4 tests, 10 minutes : tes objectifs seront calculés sur ton niveau réel.</p></div>
+          <ButtonLink href={`${base}/bilan`} arrow>Commencer le bilan</ButtonLink>
         </div>
       )}
 

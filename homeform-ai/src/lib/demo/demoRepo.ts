@@ -35,5 +35,7 @@ export const demoRepo: Repo = {
   async saveGoals(_u, goals) { upd((d) => ({ ...d, goals })); },
   async setCoachConsent(_u, v) { upd((d) => ({ ...d, coachConsent: v })); },
   async setDevSubscription(_u, s) { upd((d) => ({ ...d, subscription: s })); },
+  async addAssessment(_u, a) { upd((d) => ({ ...d, assessments: [a, ...d.assessments] })); },
+  async completeChallenge(_u, c) { upd((d) => ({ ...d, challenges: [...d.challenges.filter((x) => x.date !== c.date || x.id !== c.id), c] })); },
   async deleteAccount() { resetDemo(true); },
 };

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ExerciseId } from "@/lib/analysis/types";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { LiveCamera } from "./LiveCamera";
 
 type CamError = { title: string; detail: string };
 
@@ -64,7 +65,6 @@ export function Capture({ exercise, onVideo }: { exercise: ExerciseId; onVideo: 
   const [facing, setFacing] = useState<"environment" | "user">("environment");
   const [countdown, setCountdown] = useState<number | null>(null);
   const [rec, setRec] = useState<{ start: number; elapsed: number } | null>(null);
-  const video = useRef<HTMLVideoElement>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -88,7 +88,6 @@ export function Capture({ exercise, onVideo }: { exercise: ExerciseId; onVideo: 
       }
       setStream(s);
       setMode("camera");
-      requestAnimationFrame(() => { if (video.current) { video.current.srcObject = s; video.current.play().catch(() => {}); } });
     } catch (e) {
       setErr(cameraError(e));
     }
@@ -133,16 +132,14 @@ export function Capture({ exercise, onVideo }: { exercise: ExerciseId; onVideo: 
 
   const pickFile = (f?: File | null) => { if (f) onVideo(f); };
 
-  if (mode === "camera") {
+  if (mode === "camera" && stream) {
     return (
-      <div className="relative overflow-hidden rounded-[24px] border border-line bg-black">
-        <video ref={video} playsInline muted autoPlay className={cn("aspect-[3/4] w-full object-cover sm:aspect-video", facing === "user" && "-scale-x-100")} />
-        <div className="pointer-events-none absolute inset-5 rounded-2xl border-2 border-dashed border-volt/50" />
-        <p className="pointer-events-none absolute inset-x-0 top-7 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-volt">Corps entier dans le cadre · de profil</p>
+      <LiveCamera stream={stream} exercise={exercise} mirror={facing === "user"} className="aspect-[3/4] rounded-[24px] border border-line sm:aspect-video">
+        <div className="pointer-events-none absolute inset-5 rounded-2xl border-2 border-dashed border-volt/40" />
         {countdown !== null && <div className="absolute inset-0 flex items-center justify-center bg-black/40"><span className="display text-[160px] text-volt">{countdown}</span></div>}
         {rec && <span className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1 font-mono text-xs"><span className="h-2 w-2 animate-pulse rounded-full bg-flare" />REC {rec.elapsed.toFixed(0)} s / {MAX_REC}</span>}
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/80 to-transparent p-4">
-          <Button variant="outline" size="sm" onClick={() => { recorder.current?.state === "recording" && (recorder.current.onstop = null, recorder.current.stop()); stop(); setRec(null); setCountdown(null); setMode("choose"); }}>Annuler</Button>
+          <Button variant="outline" size="sm" onClick={() => { if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); } stop(); setRec(null); setCountdown(null); setMode("choose"); }}>Annuler</Button>
           {!rec ? (
             <button onClick={startRecording} disabled={countdown !== null} aria-label="Démarrer l'enregistrement (compte à rebours de 5 secondes)" className="focus-ring flex h-16 w-16 items-center justify-center rounded-full border-4 border-bone"><span className="h-11 w-11 rounded-full bg-flare" /></button>
           ) : (
@@ -150,7 +147,7 @@ export function Capture({ exercise, onVideo }: { exercise: ExerciseId; onVideo: 
           )}
           <Button variant="outline" size="sm" disabled={!!rec} onClick={() => { const f = facing === "user" ? "environment" : "user"; setFacing(f); openCamera(f); }}>Retourner</Button>
         </div>
-      </div>
+      </LiveCamera>
     );
   }
 
@@ -159,7 +156,7 @@ export function Capture({ exercise, onVideo }: { exercise: ExerciseId; onVideo: 
       <div className="grid gap-3 sm:grid-cols-3">
         <button onClick={() => openCamera()} className="focus-ring group flex flex-col items-start gap-6 rounded-[20px] border border-volt/40 bg-volt/[0.06] p-5 text-left hover:bg-volt/10">
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-volt">Recommandé</span>
-          <span><span className="block text-lg font-semibold">Filmer ici</span><span className="text-sm text-bone/70">Caméra du navigateur, cadre de guidage, compte à rebours de 5 s.</span></span>
+          <span><span className="block text-lg font-semibold">Filmer ici</span><span className="text-sm text-bone/70">Répétitions comptées en direct, squelette affiché, compte à rebours de 5 s.</span></span>
         </button>
         <button onClick={() => nativeInput.current?.click()} className="focus-ring flex flex-col items-start gap-6 rounded-[20px] border border-line p-5 text-left hover:border-bone/30">
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-mute">Mobile</span>

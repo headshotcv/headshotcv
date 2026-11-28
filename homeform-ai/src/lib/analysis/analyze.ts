@@ -127,9 +127,10 @@ function observationsFor(exercise: ExerciseId, reps: RepMetrics[], view: Analysi
   if (fast.length >= Math.ceil(reps.length / 2)) {
     obs.push({ id: "tempo_fast", kind: "improve", title: "Descente rapide", detail: "La phase de descente est très rapide. La ralentir aide à contrôler le mouvement.", evidence: `Durée médiane de descente : ${r1(median(descents))} s`, moments: fast.map((r) => r.start), drill: { name: "Tempo 3-1-1", how: "Descends en 3 secondes, marque 1 seconde en bas, remonte en 1 seconde. 3 × 6." }, confidence: "élevée" });
   }
-  // put actionable items first
+  // actionable items first, ranked by how much they change the movement
   const order = { improve: 0, strength: 1, info: 2 } as const;
-  return obs.sort((a, b) => order[a.kind] - order[b.kind]);
+  const priority: Record<string, number> = { pushup_sag: 1, pushup_pike: 1, squat_depth_partial: 2, pushup_depth_partial: 2, squat_lean: 3, pushup_lockout: 3, consistency_depth: 4, tempo_fast: 5 };
+  return obs.sort((a, b) => order[a.kind] - order[b.kind] || (priority[a.id] ?? 9) - (priority[b.id] ?? 9));
 }
 
 export interface AnalyzeInput {

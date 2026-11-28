@@ -16,7 +16,7 @@ export const PLANS: Record<PlanId, { id: PlanId; label: string; price: number; p
   annual: {
     id: "annual",
     label: "Annuel",
-    price: 79.9,
+    price: 59.9,
     period: "par an",
     periodShort: "/an",
     renewal: "Payé en une fois pour 12 mois, renouvelé automatiquement chaque année. Résiliable à tout moment, effet à la fin de l'année en cours.",

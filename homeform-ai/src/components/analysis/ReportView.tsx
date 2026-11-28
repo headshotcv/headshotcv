@@ -15,13 +15,13 @@ function fmtT(t: number) {
   return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}.${Math.floor((s % 1) * 10)}`;
 }
 
-export function ObservationCard({ o, onSeek, compact }: { o: Observation; onSeek?: (t: number) => void; compact?: boolean }) {
+export function ObservationCard({ o, onSeek, compact, first }: { o: Observation; onSeek?: (t: number) => void; compact?: boolean; first?: boolean }) {
   const k = KIND[o.kind];
   return (
     <article className="relative overflow-hidden rounded-2xl border border-line bg-ink-2 p-5">
       <span className={cn("absolute inset-y-0 left-0 w-[3px]", k.bar)} />
       <div className="flex items-center justify-between gap-3">
-        <p className={cn("font-mono text-[11px] uppercase tracking-[0.14em]", k.cls)}>{k.label}</p>
+        <p className={cn("font-mono text-[11px] uppercase tracking-[0.14em]", k.cls)}>{first && o.kind === "improve" ? <span className="mr-2 rounded bg-flare px-1.5 py-0.5 text-ink">N°1</span> : null}{first && o.kind === "improve" ? "À corriger en premier" : k.label}</p>
         <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Fiabilité {o.confidence}</p>
       </div>
       <h4 className="mt-2 text-lg font-semibold leading-snug">{o.title}</h4>

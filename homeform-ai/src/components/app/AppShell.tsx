@@ -14,6 +14,7 @@ const NAV = [
   ["/analyser", "Analyser", "M12 8a4 4 0 100 8 4 4 0 000-8zM3 7h3l2-3h8l2 3h3v13H3z"],
   ["/analyses", "Mes analyses", "M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"],
   ["/progression", "Ma progression", "M4 20V10M10 20V4M16 20v-7M22 20H2"],
+  ["/bilan", "Mon bilan", "M9 4h6v3H9zM6 6h12v15H6zM9 12l2 2 4-4"],
   ["/coach", "Coach IA", "M4 5h16v11H9l-5 4z"],
   ["/compte", "Mon compte", "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c1-4 4-6 8-6s7 2 8 6"],
 ] as const;
@@ -55,7 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 pb-28 lg:pb-0">
           <header className="flex h-14 items-center justify-between border-b border-line px-[var(--gutter)] lg:hidden">
             <Logo href={base} />
-            <Link href={`${base}/compte`} aria-label="Mon compte" className="focus-ring flex h-9 w-9 items-center justify-center rounded-full border border-line"><Icon d={NAV[6][2]} className="h-4 w-4" /></Link>
+            <Link href={`${base}/compte`} aria-label="Mon compte" className="focus-ring flex h-9 w-9 items-center justify-center rounded-full border border-line"><Icon d={NAV[7][2]} className="h-4 w-4" /></Link>
           </header>
           <main className="px-[var(--gutter)] py-8 lg:px-12 lg:py-12">{children}</main>
         </div>
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div role="dialog" aria-modal="true" aria-label="Plus" className="fixed inset-0 z-50 lg:hidden" onClick={() => setMore(false)}>
           <div className="absolute inset-0 bg-black/60" />
           <div className="absolute inset-x-0 bottom-0 rounded-t-[28px] border-t border-line bg-ink-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
-            {[NAV[3], NAV[5], NAV[6]].map(([href, label, d]) => (
+            {[NAV[3], NAV[5], NAV[6], NAV[7]].map(([href, label, d]) => (
               <Link key={href} href={base + href} onClick={() => setMore(false)} className="flex items-center gap-4 rounded-2xl px-4 py-4 text-lg"><Icon d={d} />{label}</Link>
             ))}
           </div>

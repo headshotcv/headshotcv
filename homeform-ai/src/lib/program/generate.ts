@@ -3,12 +3,29 @@ import { EXERCISES, byId, type Equipment, type Exercise, type Pattern } from "./
 export type Goal = "debuter" | "renforcement" | "haut" | "bas" | "fullbody" | "pompes";
 export type Level = 1 | 2 | 3;
 
+export interface Baseline { pushupVariant: "pushup" | "knee-pushup" | "incline-pushup"; pushups: number; squats60: number; plank: number; wallSit: number }
+
 export interface Profile {
   goal: Goal;
   level: Level;
   days: 2 | 3 | 4 | 5;
   minutes: 15 | 25 | 40;
   equipment: Equipment[];
+  /** results of the starting test, used to size targets */
+  baseline?: Baseline;
+}
+
+/** Target sized from the starting test when available (≈60 % of the max, as a working set). */
+function fromBaseline(ex: Exercise, b?: Baseline): number | null {
+  if (!b) return null;
+  const pct = (n: number, f: number, min: number) => Math.max(min, Math.round(n * f));
+  if (ex.id === b.pushupVariant) return pct(b.pushups, 0.6, 3);
+  if (ex.id === "pushup" && b.pushupVariant !== "pushup") return null;
+  if (ex.id === "knee-pushup" && b.pushupVariant === "pushup") return pct(b.pushups, 1, 6);
+  if (ex.id === "squat") return pct(b.squats60, 0.4, 6);
+  if (ex.id === "plank") return pct(b.plank, 0.6, 15);
+  if (ex.id === "wall-sit") return pct(b.wallSit, 0.6, 15);
+  return null;
 }
 
 export interface Prescription {
@@ -59,13 +76,13 @@ const SPLITS: Record<Goal, Pattern[][]> = {
 };
 
 function prescribe(ex: Exercise, level: Level, week: number, profile: Profile): Prescription {
-  const base = ex.base[level - 1];
+  const base = fromBaseline(ex, profile.baseline) ?? ex.base[level - 1];
   // progression: +1 rep / +5 s per week, week 4 = consolidation (same as week 3)
   const w = Math.min(week, 3) - 1;
   const target = ex.unit === "reps" ? base + w * (level === 1 ? 1 : 2) : base + w * 5;
   const sets = profile.minutes === 15 ? 2 : profile.minutes === 25 ? 3 : week >= 3 ? 4 : 3;
   const rest = ex.pattern === "conditioning" || ex.pattern === "core" ? 45 : level === 3 ? 90 : 60;
-  return { exerciseId: ex.id, sets, target, unit: ex.unit, rest, note: ex.easier ? `Trop difficile ? Remplace par : ${byId(ex.easier)?.name}.` : undefined };
+  return { exerciseId: ex.id, sets, target, unit: ex.unit, rest, note: [profile.baseline && fromBaseline(ex, profile.baseline) !== null ? "Objectif calculé d’après ton bilan de départ." : "", ex.easier ? `Trop difficile ? Remplace par : ${byId(ex.easier)?.name}.` : ""].filter(Boolean).join(" ") || undefined };
 }
 
 function estimate(items: Prescription[]): number {
