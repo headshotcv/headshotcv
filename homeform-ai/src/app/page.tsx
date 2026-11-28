@@ -1,6 +1,7 @@
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
 import { Problem } from "@/components/landing/Problem";
+import { BrandBand } from "@/components/landing/BrandBand";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { AnalysisShowcase } from "@/components/landing/AnalysisShowcase";
 import { CoachSection } from "@/components/landing/CoachSection";
@@ -15,6 +16,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <BrandBand />
         <Problem />
         <HowItWorks />
         <AnalysisShowcase />

@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { SectionHead } from "@/components/ui/SectionHead";
-import { TrainingScene } from "@/components/figure/TrainingScene";
+import { PoseVideo } from "@/components/media/PoseVideo";
+import { VideoLoop } from "@/components/media/VideoLoop";
 import { DemoBadge } from "@/components/ui/DemoBadge";
-import { exampleAnalysis } from "@/lib/analysis/example";
+import { usePoseTrack } from "@/components/media/usePoseTrack";
 import { cn } from "@/lib/cn";
 
 const STEPS = [
@@ -26,7 +27,8 @@ function Phone({ children }: { children: React.ReactNode }) {
 export function HowItWorks() {
   const [step, setStep] = useState(0);
   const [auto, setAuto] = useState(true);
-  const r = useMemo(() => exampleAnalysis("hero"), []);
+  const track = usePoseTrack("terracePushups");
+  const r = track?.result;
   useEffect(() => {
     if (!auto) return;
     const id = setInterval(() => setStep((s) => (s + 1) % 4), 4200);
@@ -41,7 +43,7 @@ export function HowItWorks() {
   }, [step]);
 
   return (
-    <section id="demo" className="border-t border-line py-24 sm:py-32" aria-labelledby="how-title">
+    <section id="demo" className="py-24 sm:py-32" aria-labelledby="how-title">
       <div className="wrap">
         <SectionHead index="02" eyebrow="Comment ça marche" title={<span id="how-title">Quatre étapes.<br />Moins de deux minutes.</span>} />
         <div className="mt-16 grid items-center gap-12 lg:grid-cols-[1fr_auto_1fr]">
@@ -69,18 +71,19 @@ export function HowItWorks() {
             <AnimatePresence mode="wait">
               <motion.div key={step} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }} className="absolute inset-0">
                 {step === 0 && (
-                  <TrainingScene exercise="squat" ratio="tall" className="h-full w-full">
+                  <div className="relative h-full w-full">
+                    <VideoLoop clip="terracePushups" objectPosition="62% 50%" />
                     <div className="absolute inset-6 top-14 rounded-[20px] border-2 border-dashed border-volt/50" />
                     <p className="absolute inset-x-0 top-16 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-volt">Corps entier dans le cadre</p>
                     <div className="absolute bottom-6 left-1/2 flex h-16 w-16 -translate-x-1/2 items-center justify-center rounded-full border-4 border-bone/80"><span className="h-10 w-10 animate-pulse rounded-full bg-flare" /></div>
-                  </TrainingScene>
+                  </div>
                 )}
                 {step === 1 && (
                   <div className="flex h-full flex-col justify-center gap-5 p-6">
                     <p className="eyebrow">Import</p>
                     <div className="rounded-2xl border border-line bg-ink-2 p-4">
-                      <p className="font-semibold">squat_salon.mp4</p>
-                      <p className="font-mono text-xs text-mute">00:16 · 1080p</p>
+                      <p className="font-semibold">pompes_terrasse.mp4</p>
+                      <p className="font-mono text-xs text-mute">00:13 · 720p</p>
                       <div className="mt-4 h-1.5 overflow-hidden rounded bg-line"><div className="h-full bg-volt transition-[width]" style={{ width: `${upload}%` }} /></div>
                       <p className="mt-2 font-mono text-[11px] text-mute">Lecture locale {upload}% · aucun envoi serveur</p>
                     </div>
@@ -91,16 +94,16 @@ export function HowItWorks() {
                   </div>
                 )}
                 {step === 2 && (
-                  <TrainingScene exercise="squat" ratio="tall" skeleton showAngle className="h-full w-full">
-                    <span className="absolute left-4 top-12 rounded-full bg-ink/80 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-volt">Squat · 98 %</span>
-                  </TrainingScene>
+                  <PoseVideo clip="terracePushups" objectPosition="62% 50%" className="h-full w-full">
+                    <span className="absolute left-4 top-12 rounded-full bg-ink/80 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-volt">Pompes détectées</span>
+                  </PoseVideo>
                 )}
-                {step === 3 && (
+                {step === 3 && r && (
                   <div className="h-full space-y-3 overflow-hidden p-5 pt-12">
                     <div className="flex items-center justify-between"><p className="eyebrow">Rapport</p><DemoBadge /></div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="rounded-xl bg-ink-2 p-3"><p className="font-mono text-[9px] uppercase text-mute">Répétitions</p><p className="text-2xl font-bold">{r.summary.repCount}</p></div>
-                      <div className="rounded-xl bg-ink-2 p-3"><p className="font-mono text-[9px] uppercase text-mute">Genou bas</p><p className="text-2xl font-bold text-volt">{Math.round(r.summary.avgMinAngle ?? 0)}°</p></div>
+                      <div className="rounded-xl bg-ink-2 p-3"><p className="font-mono text-[9px] uppercase text-mute">Coude bas</p><p className="text-2xl font-bold text-volt">{Math.round(r.summary.avgMinAngle ?? 0)}°</p></div>
                     </div>
                     {r.observations.slice(0, 2).map((o) => (
                       <div key={o.id} className="rounded-xl border border-line bg-ink-2 p-3">
@@ -117,7 +120,7 @@ export function HowItWorks() {
 
           <div className="hidden lg:block">
             <p className="display text-[180px] leading-none text-white/[0.04]">0{step + 1}</p>
-            <p className="max-w-xs text-sm leading-relaxed text-mute">Les écrans ci-contre reprennent l’interface réelle. Les valeurs proviennent du moteur d’analyse appliqué à une séquence de démonstration.</p>
+            <p className="max-w-xs text-sm leading-relaxed text-mute">Les écrans reprennent l’interface réelle. Le squelette et les valeurs sont ceux calculés par le moteur sur cette vidéo (Mixkit).</p>
           </div>
         </div>
       </div>

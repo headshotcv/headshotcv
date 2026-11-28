@@ -3,34 +3,35 @@ import { useState } from "react";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { ProfileQuiz } from "@/components/program/ProfileQuiz";
 import { ProgramTimeline } from "@/components/program/ProgramTimeline";
-import { ExerciseDemo } from "@/components/figure/ExerciseDemo";
+import { ProgramSlider } from "./ProgramSlider";
+import { VideoLoop } from "@/components/media/VideoLoop";
 import { ButtonLink, Button } from "@/components/ui/Button";
-import { generateProgram, GOALS, type Program } from "@/lib/program/generate";
+import { generateProgram, type Program } from "@/lib/program/generate";
 import { saveDraftProfile } from "@/lib/store/draft";
-
-const SHOWCASE = [
-  ["debuter", "squat"], ["renforcement", "lunge"], ["haut", "pushup"], ["bas", "glute-bridge"], ["fullbody", "mountain-climber"], ["pompes", "incline-pushup"],
-] as const;
 
 export function CoachSection() {
   const [program, setProgram] = useState<Program | null>(null);
   return (
-    <section id="programme" className="border-t border-line py-24 sm:py-32" aria-labelledby="coach-title">
+    <section id="programme" className="py-24 sm:py-32" aria-labelledby="coach-title">
       <div className="wrap">
         <SectionHead index="04" eyebrow="Ton programme" title={<span id="coach-title">Cinq questions.<br /><span className="text-volt">Un plan sur 4 semaines.</span></span>} intro="Ton objectif, ton niveau, ton temps et ton matériel. Le programme s’adapte, avec une variante plus facile pour chaque exercice." />
+      </div>
+      <div className="mt-12"><ProgramSlider /></div>
+      <div className="wrap">
 
         {!program ? (
-          <div className="mt-14 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-            <div className="rounded-[24px] border border-line bg-ink-2 p-6 sm:p-8">
+          <div className="relative mt-16 grid overflow-hidden rounded-[28px] border border-line lg:grid-cols-[1.1fr_1fr]">
+            <div className="relative z-10 bg-ink-2 p-6 sm:p-10">
+              <p className="eyebrow mb-6 !text-volt">Crée ton plan · 30 secondes</p>
               <ProfileQuiz onDone={(p) => { setProgram(generateProgram(p)); saveDraftProfile(p); }} />
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {SHOWCASE.map(([g, demo]) => (
-                <div key={g} className="overflow-hidden rounded-2xl border border-line bg-ink-2">
-                  <ExerciseDemo demo={demo} skeleton={false} className="aspect-[4/3]" label={GOALS[g].title} />
-                  <p className="p-3 text-sm font-semibold leading-tight [font-stretch:85%] sm:text-base">{GOALS[g].title}</p>
-                </div>
-              ))}
+            <div className="relative hidden min-h-[520px] lg:block">
+              <VideoLoop clip="terracePushups" objectPosition="40% 50%" />
+              <div className="absolute inset-0 bg-gradient-to-r from-ink-2 via-ink-2/30 to-transparent" />
+              <div className="absolute bottom-8 right-8 max-w-[260px] rounded-2xl border border-white/10 bg-ink/60 p-4 backdrop-blur-xl">
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-volt">Ton programme</p>
+                <p className="mt-1 text-sm text-bone/85">4 semaines · progression de +1 à +2 répétitions par semaine · test en fin de cycle.</p>
+              </div>
             </div>
           </div>
         ) : (

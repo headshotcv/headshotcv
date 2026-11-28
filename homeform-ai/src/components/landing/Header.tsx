@@ -26,7 +26,7 @@ export function Header() {
     document.body.style.overflow = open ? "hidden" : "";
   }, [open]);
   return (
-    <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background,border] duration-300", scrolled || open ? "border-b border-line bg-ink/85 backdrop-blur-xl" : "border-b border-transparent")}>
+    <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background,border] duration-300", scrolled || open ? "border-b border-line bg-ink/80 backdrop-blur-xl" : "border-b border-transparent bg-gradient-to-b from-ink/70 to-transparent")}>
       <div className="wrap flex h-16 items-center justify-between gap-6">
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigation principale">

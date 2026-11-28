@@ -1,5 +1,5 @@
 import { Logo } from "@/components/ui/Logo";
-import { TrainingScene } from "@/components/figure/TrainingScene";
+import { PoseVideo } from "@/components/media/PoseVideo";
 import { LocalModeBanner } from "@/components/app/LocalModeBanner";
 
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
@@ -15,7 +15,11 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
             {children}
           </div>
         </div>
-        <TrainingScene exercise="pushup" ratio="tall" skeleton variant="bedroom" className="hidden lg:block" />
+        <div className="relative hidden lg:block">
+          <PoseVideo clip="terracePushups" objectPosition="62% 50%" className="absolute inset-0" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/20 to-transparent" />
+          <p className="absolute bottom-8 left-10 right-10 display text-6xl">Chaque répétition<br /><span className="text-volt">compte.</span></p>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { sideIdx } from "./landmarks.ts";
 import { angle, lineDeviation, mean, median, std, toPoint } from "./geometry.ts";
 import { smooth } from "./signal.ts";
 import { segmentReps } from "./reps.ts";
-import { classifyExercise, estimateView, pickSide, torsoInclination } from "./classify.ts";
+import { classifyExercise, estimateView, pickSide, stanceSpread, torsoInclination } from "./classify.ts";
 import { assessQuality, REJECTION_TEXT } from "./quality.ts";
 import { THRESHOLDS as T } from "./thresholds.ts";
 
@@ -170,6 +170,10 @@ export function analyze({ frames, meta, requestedExercise }: AnalyzeInput): Anal
 
   const side = pickSide(usable);
   const view = estimateView(usable, aspect, exercise);
+  // A split stance seen from the side (lunge, step) also bends the knees: do not call it a squat.
+  if (exercise === "squat" && view !== "face" && stanceSpread(usable, aspect) > 0.6) {
+    return { ...base, exercise: null, exerciseConfidence: confidence, view, side, rejection: { code: "exercise_not_recognized", ...REJECTION_TEXT.exercise_not_recognized } };
+  }
   const { primary, secondary } = measure(frames, exercise, side, aspect);
   const times = frames.map((f) => f.t);
   const windows = segmentReps(primary, times, { minRange: exercise === "squat" ? T.squat.minRange : T.pushup.minRange });

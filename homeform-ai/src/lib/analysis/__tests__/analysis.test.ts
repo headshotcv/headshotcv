@@ -96,3 +96,10 @@ test("too short video → rejected", () => {
   const r = analyze({ frames: s.frames.slice(0, 20), meta: { ...s.meta, duration: 1.3 } });
   assert.equal(r.rejection?.code, "video_too_short");
 });
+
+test("split stance (lunge) in profile is not reported as a squat", () => {
+  const s = syntheticSequence({ exercise: "squat", reps: 4 });
+  const frames = s.frames.map((f) => ({ ...f, landmarks: f.landmarks!.map((l, i) => ([28, 30, 32].includes(i) ? { ...l, x: l.x - 0.2 } : l)) }));
+  const r = analyze({ frames, meta: s.meta });
+  assert.equal(r.rejection?.code, "exercise_not_recognized");
+});

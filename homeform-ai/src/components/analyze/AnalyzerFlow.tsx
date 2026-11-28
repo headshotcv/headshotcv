@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ExerciseId } from "@/lib/analysis/types";
 import { ProfileQuiz } from "@/components/program/ProfileQuiz";
-import { TrainingScene } from "@/components/figure/TrainingScene";
+import { PoseVideo } from "@/components/media/PoseVideo";
 import { Capture, FilmingGuide } from "./Capture";
 import { Processing } from "./Processing";
 import { Rejected, ResultView } from "./ResultView";
@@ -26,15 +26,15 @@ const FUNNEL: { key: Step; label: string }[] = [
 ];
 
 export function ExercisePicker({ value, onPick }: { value?: ExerciseId; onPick: (e: ExerciseId) => void }) {
-  const opts: { id: ExerciseId; title: string; text: string }[] = [
-    { id: "squat", title: "Squat au poids du corps", text: "Amplitude, inclinaison du buste, régularité, rythme." },
-    { id: "pushup", title: "Pompes", text: "Amplitude, extension en haut, alignement du corps, rythme." },
+  const opts: { id: ExerciseId; title: string; text: string; clip: "loftSquats" | "livingPushups"; pos: string }[] = [
+    { id: "squat", title: "Squat au poids du corps", text: "Amplitude, inclinaison du buste, régularité, rythme.", clip: "loftSquats", pos: "50% 45%" },
+    { id: "pushup", title: "Pompes", text: "Amplitude, extension en haut, alignement du corps, rythme.", clip: "livingPushups", pos: "50% 55%" },
   ];
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {opts.map((o) => (
         <button key={o.id} onClick={() => onPick(o.id)} aria-pressed={value === o.id} className={cn("focus-ring group overflow-hidden rounded-[24px] border text-left transition-colors", value === o.id ? "border-volt" : "border-line hover:border-bone/30")}>
-          <TrainingScene exercise={o.id} ratio="landscape" skeleton className="aspect-video" />
+          <PoseVideo clip={o.clip} objectPosition={o.pos} showAngle={false} className="aspect-video" />
           <div className="p-5">
             <p className="text-xl font-bold tracking-tight [font-stretch:85%]">{o.title}</p>
             <p className="mt-1 text-sm text-bone/70">{o.text}</p>

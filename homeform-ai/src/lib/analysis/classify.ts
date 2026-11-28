@@ -81,3 +81,19 @@ export function classifyExercise(frames: PoseFrame[], aspect: number): { exercis
   if (horizontal >= 0.7) return { exercise: "pushup", confidence: horizontal };
   return { exercise: null, confidence: Math.max(upright, horizontal) };
 }
+
+/** Median horizontal distance between the ankles, relative to leg length (0 = feet together in profile). */
+export function stanceSpread(frames: PoseFrame[], aspect: number): number {
+  const v: number[] = [];
+  for (const f of frames) {
+    const lm = f.landmarks;
+    if (!lm) continue;
+    const la = toPoint(lm[L.leftAnkle], aspect), ra = toPoint(lm[L.rightAnkle], aspect);
+    const lh = toPoint(lm[L.leftHip], aspect);
+    const leg = Math.hypot(lh.x - la.x, lh.y - la.y);
+    if (leg > 0) v.push(Math.abs(la.x - ra.x) / leg);
+  }
+  if (!v.length) return 0;
+  v.sort((a, b) => a - b);
+  return v[Math.floor(v.length / 2)];
+}

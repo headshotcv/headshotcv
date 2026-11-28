@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
-import { TrainingScene } from "@/components/figure/TrainingScene";
+import { VideoLoop } from "@/components/media/VideoLoop";
 
 export function FinalCta() {
   return (
     <section className="relative overflow-hidden border-t border-line">
-      <TrainingScene exercise="pushup" ratio="landscape" skeleton className="absolute inset-0 h-full w-full opacity-60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/20" />
+      <div className="absolute inset-0"><VideoLoop clip="darkPushups" objectPosition="50% 40%" /></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/70 to-ink/10" />
       <div className="wrap relative py-28 sm:py-40">
         <h2 className="display max-w-3xl text-[15vw] sm:text-[120px]">Prochaine série :<br /><span className="text-volt">filmée.</span></h2>
         <p className="mt-6 max-w-md text-lg text-bone/75">Ta première analyse est gratuite. Il te faut un téléphone et deux mètres de sol.</p>
@@ -32,7 +32,7 @@ export function Footer() {
       </div>
       <div className="wrap mt-12 flex flex-col justify-between gap-2 border-t border-line pt-6 text-xs text-mute sm:flex-row">
         <p>© {new Date().getFullYear()} HOMEFORM AI — nom de travail</p>
-        <p>Illustrations originales · aucune photo de stock</p>
+        <p>Vidéos : <a className="underline" href="https://mixkit.co/license/#videoFree" rel="noopener noreferrer" target="_blank">Mixkit</a> (licence libre) · analyse calculée par HOMEFORM</p>
       </div>
     </footer>
   );
